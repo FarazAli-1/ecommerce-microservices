@@ -9,28 +9,45 @@ spring:
       server:
         webmvc:
           routes:
-
-            - id: product-service
+            # Product Service
+            - id: product-service-wildcard
               uri: lb://product-service
               predicates:
-                - Path=/api/product, /api/product/**, /api/category, /api/category/**
+                - Path=/api/product/**
+            - id: product-service-exact
+              uri: lb://product-service
+              predicates:
+                - Path=/api/product
 
-            - id: inventory-service
+            # Category Service
+            - id: category-service-wildcard
+              uri: lb://product-service
+              predicates:
+                - Path=/api/category/**
+            - id: category-service-exact
+              uri: lb://product-service
+              predicates:
+                - Path=/api/category
+
+            # Order Service
+            - id: order-service-wildcard
+              uri: lb://order-service
+              predicates:
+                - Path=/api/order/**
+            - id: order-service-exact
+              uri: lb://order-service
+              predicates:
+                - Path=/api/order
+
+            # Inventory Service
+            - id: inventory-service-wildcard
               uri: lb://inventory-service
               predicates:
-                - Path=/api/inventory, /api/inventory/**
-
-            - id: eureka-server
-              uri: http://localhost:8761
+                - Path=/api/inventory/**
+            - id: inventory-service-exact
+              uri: lb://inventory-service
               predicates:
-                - Path=/eureka/web
-              filters:
-                - SetPath=/
-
-            - id: eureka-server-ui-assets
-              uri: http://localhost:8761
-              predicates:
-                - Path=/eureka/**
+                - Path=/api/inventory
 
 eureka:
   client:
