@@ -8,7 +8,4 @@ import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<Category,Long> {
 
-    @NonNull
-    Optional<Category> findByCategoryId(@NonNull Long id);
-
 }

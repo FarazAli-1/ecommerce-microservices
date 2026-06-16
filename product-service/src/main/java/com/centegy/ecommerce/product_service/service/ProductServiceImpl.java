@@ -25,7 +25,7 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public ProductResponseDto createProduct(ProductRequestDto productRequestDto) {
 
-        Category category = categoryRepository.findByCategoryId(productRequestDto.getCategoryId())
+        Category category = categoryRepository.findById(productRequestDto.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found with id " + productRequestDto.getCategoryId()));
 
         Product product = productMapper.mapToProductEntity(productRequestDto);
