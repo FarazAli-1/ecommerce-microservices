@@ -2,13 +2,17 @@ package com.ecommerce.order_service.service;
 
 
 import com.centegy.ecommerce_shared.dto.ApiResponse;
+import com.ecommerce.order_service.client.InventoryClient;
+import com.ecommerce.order_service.dto.external.ProductResponseDto;
 import com.ecommerce.order_service.dto.request.OrderRequestDto;
 import com.ecommerce.order_service.dto.response.OrderResponseDto;
 import com.ecommerce.order_service.mapper.OrderMapper;
 import com.ecommerce.order_service.model.Order;
 import com.ecommerce.order_service.model.OrderItems;
 import com.ecommerce.order_service.repository.OrderRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -21,6 +25,8 @@ public class OrderServiceImpl implements OrderService{
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
+    private final InventoryClient  inventoryClient;
 
     @Override
     public OrderResponseDto getOrderById(Long orderId) {
@@ -38,29 +44,36 @@ public class OrderServiceImpl implements OrderService{
     public OrderResponseDto placeOrder(OrderRequestDto orderRequestDto) {
 
         Order order = orderMapper.mapToOrderEntity(orderRequestDto);
+        ProductResponseDto product;
 
         for(OrderItems item : order.getOrderItems()) {
 
             String productUrl = "http://product-service/api/product/" + item.getProductId();
 
             try {
-                restTemplate.getForEntity(productUrl, ApiResponse.class);
+                ResponseEntity<ApiResponse> response = restTemplate.getForEntity(productUrl, ApiResponse.class);
+                Object rawData = response.getBody().getData();
+                product = objectMapper.convertValue(rawData, ProductResponseDto.class);
             }
             catch (Exception e) {
-                throw new RuntimeException("Product not found");
+                e.printStackTrace();
+                throw new RuntimeException("Failed to fetch product details: " + e.getMessage());
             }
-
-            String inventoryUrl = "http://inventory-service/api/inventory/deduct-stock";
 
             InventoryRequestPayload inventoryRequestPayload = new InventoryRequestPayload(item.getQuantity(), item.getProductId());
 
             try {
-                restTemplate.put(inventoryUrl, inventoryRequestPayload);
+                inventoryClient.deductStock(inventoryRequestPayload);
             }
             catch (Exception e) {
-                throw new RuntimeException("Transaction Failed: Not enough stock for Product ID " + item.getProductId());            }
+                e.printStackTrace();
+                throw new RuntimeException(e.getMessage());
+            }
 
+            item.setPrice(product.getPrice());
         }
+
+
 
         orderRepository.save(order);
         return orderMapper.mapToOrderResponseDto(order);

@@ -1,13 +1,16 @@
 package com.centegy.ecommerce.inventory_service.service;
 
 
+import com.centegy.ecommerce.inventory_service.client.ProductClient;
 import com.centegy.ecommerce.inventory_service.dto.request.InventoryRequestDto;
 import com.centegy.ecommerce.inventory_service.dto.response.InventoryResponseDto;
 import com.centegy.ecommerce.inventory_service.mapper.InventoryMapper;
 import com.centegy.ecommerce.inventory_service.model.Inventory;
 import com.centegy.ecommerce.inventory_service.repository.InventoryRepository;
+import com.centegy.ecommerce_shared.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -17,13 +20,22 @@ public class InventoryServiceImpl implements  InventoryService {
 
     private final InventoryRepository inventoryRepository;
     private final InventoryMapper inventoryMapper;
+    private final RestTemplate restTemplate;
+    private final ProductClient  productClient;
 
 
     @Override
     public InventoryResponseDto createInventory(InventoryRequestDto inventoryRequestDto) {
 
      if(inventoryRepository.findByProductId(inventoryRequestDto.getProductId()).isPresent()){
-         throw new RuntimeException("Product already exists with id " + inventoryRequestDto.getProductId());
+         throw new RuntimeException("Inventory for product with id " + inventoryRequestDto.getProductId() + " already exists");
+     }
+
+     try {
+         productClient.verifyProduct(inventoryRequestDto.getProductId());
+     } catch (Exception e) {
+         e.printStackTrace();
+         throw new RuntimeException(e.getMessage());
      }
 
      Inventory inventory = inventoryMapper.mapToInventory(inventoryRequestDto);
