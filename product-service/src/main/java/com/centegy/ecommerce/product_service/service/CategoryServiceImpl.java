@@ -5,12 +5,14 @@ import com.centegy.ecommerce.product_service.dto.response.CategoryResponseDto;
 import com.centegy.ecommerce.product_service.mapper.CategoryMapper;
 import com.centegy.ecommerce.product_service.model.Category;
 import com.centegy.ecommerce.product_service.repository.CategoryRepository;;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class CategoryServiceImpl implements CategoryService {
 

@@ -7,6 +7,7 @@ import com.centegy.ecommerce.product_service.model.Category;
 import com.centegy.ecommerce.product_service.model.Product;
 import com.centegy.ecommerce.product_service.repository.CategoryRepository;
 import com.centegy.ecommerce.product_service.repository.ProductRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class ProductServiceImpl implements ProductService{
 

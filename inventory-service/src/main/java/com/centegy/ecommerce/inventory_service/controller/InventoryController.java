@@ -2,8 +2,6 @@ package com.centegy.ecommerce.inventory_service.controller;
 
 import com.centegy.ecommerce.inventory_service.dto.request.InventoryRequestDto;
 import com.centegy.ecommerce.inventory_service.dto.response.InventoryResponseDto;
-import com.centegy.ecommerce.inventory_service.model.Inventory;
-import com.centegy.ecommerce.inventory_service.repository.InventoryRepository;
 import com.centegy.ecommerce.inventory_service.service.InventoryService;
 import com.centegy.ecommerce_shared.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +46,14 @@ public class InventoryController {
         InventoryResponseDto inventoryResponseDto = inventoryService.deductStock(inventoryRequestDto);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse(true, "Inventory deducted successfully", inventoryResponseDto));
+    }
+
+    @PutMapping("/restore-stock")
+    public ResponseEntity<ApiResponse> restoreStock(@RequestBody InventoryRequestDto inventoryRequestDto) {
+        InventoryResponseDto inventoryResponseDto = inventoryService.restoreStock(inventoryRequestDto);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ApiResponse(true, "Inventory restored successfully", inventoryResponseDto));
+
     }
 
     @GetMapping("/{id}")

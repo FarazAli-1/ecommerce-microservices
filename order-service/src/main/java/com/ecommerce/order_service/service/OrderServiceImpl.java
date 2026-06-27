@@ -11,6 +11,7 @@ import com.ecommerce.order_service.model.Order;
 import com.ecommerce.order_service.model.OrderItems;
 import com.ecommerce.order_service.repository.OrderRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class OrderServiceImpl implements OrderService{
 
@@ -73,11 +75,33 @@ public class OrderServiceImpl implements OrderService{
             item.setPrice(product.getPrice());
         }
 
+        try {
+            orderRepository.save(order);
+        }catch (Exception databaseException) {
 
+            System.err.println("Failed to save order. Starting rollback." );
 
-        orderRepository.save(order);
+            for (OrderItems item : order.getOrderItems()) {
+
+                InventoryRequestPayload inventoryRequestPayload = new InventoryRequestPayload(item.getQuantity(), item.getProductId());
+
+                try {
+                    inventoryClient.restoreStock(inventoryRequestPayload);
+                    System.out.println("Successfully restored inventory for " + item.getProductId());
+                } catch (Exception RollBackException) {
+                    System.err.println("Failed to restore inventory for " + item.getProductId());
+
+                }
+
+            }
+            throw  new RuntimeException("Order Failed. No stock deducted");
+
+        }
+
         return orderMapper.mapToOrderResponseDto(order);
 
     }
+
+
     record InventoryRequestPayload(Integer stockQuantity, Long productId) {}
 }

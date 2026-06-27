@@ -7,20 +7,20 @@ import com.centegy.ecommerce.inventory_service.dto.response.InventoryResponseDto
 import com.centegy.ecommerce.inventory_service.mapper.InventoryMapper;
 import com.centegy.ecommerce.inventory_service.model.Inventory;
 import com.centegy.ecommerce.inventory_service.repository.InventoryRepository;
-import com.centegy.ecommerce_shared.dto.ApiResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
-@Service
+
 @RequiredArgsConstructor
+@Transactional
+@Service
 public class InventoryServiceImpl implements  InventoryService {
 
     private final InventoryRepository inventoryRepository;
     private final InventoryMapper inventoryMapper;
-    private final RestTemplate restTemplate;
     private final ProductClient  productClient;
 
 
@@ -110,7 +110,26 @@ public class InventoryServiceImpl implements  InventoryService {
 
         inventory.setStockQuantity(newStockQuantity);
 
-        return inventoryMapper.mapToInventoryResponseDto(inventoryRepository.save(inventory));
 
+        try {
+            return inventoryMapper.mapToInventoryResponseDto(inventoryRepository.save(inventory));
+        } catch (org.springframework.orm.ObjectOptimisticLockingFailureException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Sorry, someone else just purchased this item.");
+        }
+
+    }
+
+    @Override
+    public InventoryResponseDto restoreStock(InventoryRequestDto inventoryRequestDto) {
+
+        Inventory inventory = inventoryRepository.findByProductId(inventoryRequestDto.getProductId())
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + inventoryRequestDto.getProductId()));
+
+        int newStockQuantity = inventory.getStockQuantity() + inventoryRequestDto.getStockQuantity();
+
+       inventory.setStockQuantity(newStockQuantity);
+
+        return inventoryMapper.mapToInventoryResponseDto(inventoryRepository.save(inventory));
     }
 }

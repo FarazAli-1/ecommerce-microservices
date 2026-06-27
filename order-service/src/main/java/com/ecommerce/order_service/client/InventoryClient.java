@@ -22,4 +22,14 @@ public class InventoryClient {
             throw new RuntimeException("Inventory Service is currently unavailable. Please try again later.");
     }
 
+    @CircuitBreaker(name = "inventory", fallbackMethod = "fallbackRestoreStock")
+    public void restoreStock(Object inventoryRequestPayload) {
+        String inventoryUrl = "http://inventory-service/api/inventory/restore-stock";
+        restTemplate.put(inventoryUrl, inventoryRequestPayload);
+    }
+
+    public void fallbackRestoreStock(Object inventoryRequestPayload, Throwable throwable) {
+        throw new RuntimeException("Inventory Service is currently unavailable. Please try again later.");
+    }
+
 }

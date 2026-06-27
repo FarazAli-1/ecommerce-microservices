@@ -20,5 +20,6 @@ public interface InventoryService {
 
     InventoryResponseDto addStock(InventoryRequestDto inventoryRequestDto);
     InventoryResponseDto deductStock(InventoryRequestDto inventoryRequestDto);
+    InventoryResponseDto restoreStock(InventoryRequestDto inventoryRequestDto);
 
 }
