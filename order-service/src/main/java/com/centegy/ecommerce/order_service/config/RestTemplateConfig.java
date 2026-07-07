@@ -1,4 +1,4 @@
-package com.ecommerce.order_service.config;
+package com.centegy.ecommerce.order_service.config;
 
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;

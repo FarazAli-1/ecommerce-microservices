@@ -5,6 +5,7 @@ import com.centegy.ecommerce.product_service.dto.request.CategoryRequestDto;
 import com.centegy.ecommerce.product_service.dto.response.CategoryResponseDto;
 import com.centegy.ecommerce.product_service.service.CategoryService;
 import com.centegy.ecommerce_shared.dto.ApiResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse> createCategory(@RequestBody CategoryRequestDto categoryRequestDto) {
+    public ResponseEntity<ApiResponse> createCategory(@Valid @RequestBody CategoryRequestDto categoryRequestDto) {
         CategoryResponseDto categoryResponseDto = categoryService.createCategory(categoryRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse(true, "Category created successfully", categoryResponseDto));
@@ -30,7 +31,7 @@ public class CategoryController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateCategory(@PathVariable Long id, @RequestBody CategoryRequestDto categoryRequestDto) {
+    public ResponseEntity<ApiResponse> updateCategory(@PathVariable Long id,@Valid  @RequestBody CategoryRequestDto categoryRequestDto) {
         CategoryResponseDto categoryResponseDto = categoryService.updateCategory(id, categoryRequestDto);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse(true, "Category updated successfully", categoryResponseDto));

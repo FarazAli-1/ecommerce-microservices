@@ -5,6 +5,8 @@ import com.centegy.ecommerce.product_service.dto.request.ProductRequestDto;
 import com.centegy.ecommerce.product_service.dto.response.ProductResponseDto;
 import com.centegy.ecommerce.product_service.service.ProductService;
 import com.centegy.ecommerce_shared.dto.ApiResponse;
+import com.centegy.ecommerce_shared.dto.PageResponse;
+import jakarta.validation.Valid;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,22 +23,25 @@ public class ProductController {
     public final ProductService productService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse> createProduct(@RequestBody ProductRequestDto productRequestDto){
+    public ResponseEntity<ApiResponse> createProduct(@Valid @RequestBody ProductRequestDto productRequestDto){
         ProductResponseDto productResponseDto = productService.createProduct(productRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse(true, "Product created successfully", productResponseDto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateProduct(@PathVariable Long id, @RequestBody ProductRequestDto productRequestDto){
+    public ResponseEntity<ApiResponse> updateProduct(@PathVariable Long id,@Valid  @RequestBody ProductRequestDto productRequestDto){
         ProductResponseDto productResponseDto = productService.updateProduct(id, productRequestDto);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse(true, "Product updated successfully", productResponseDto));
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse> findAllProducts(){
-        List<ProductResponseDto> productResponseDtoList = productService.findAllProducts();
+    public ResponseEntity<ApiResponse> findAllProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        PageResponse<ProductResponseDto> productResponseDtoList = productService.findAllProducts(page, size);
         return ResponseEntity.ok(new ApiResponse(true, "Products fetched successfully", productResponseDtoList));
     }
 

@@ -1,9 +1,10 @@
-package com.ecommerce.order_service.client;
+package com.centegy.ecommerce.order_service.client;
 
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -19,6 +20,9 @@ public class InventoryClient {
     }
 
     public void fallbackDeductStock(Object inventoryRequestPayload, Throwable throwable) {
+        if (throwable instanceof HttpStatusCodeException) {
+            throw new RuntimeException("Order failed, insufficient stock for one or more items.");
+        }
             throw new RuntimeException("Inventory Service is currently unavailable. Please try again later.");
     }
 

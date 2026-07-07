@@ -7,8 +7,12 @@ import com.centegy.ecommerce.product_service.model.Category;
 import com.centegy.ecommerce.product_service.model.Product;
 import com.centegy.ecommerce.product_service.repository.CategoryRepository;
 import com.centegy.ecommerce.product_service.repository.ProductRepository;
+import com.centegy.ecommerce_shared.dto.PageResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -70,8 +74,24 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public List<ProductResponseDto> findAllProducts() {
-        return productRepository.findAll().stream().map(productMapper::mapToProductResponseDto).collect(java.util.stream.Collectors.toList());
+    public PageResponse<ProductResponseDto> findAllProducts(int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<ProductResponseDto> pagedData = productRepository.findAllProductsAsDto(pageable);
+
+        return new PageResponse<>(
+                pagedData.getContent(),
+                pagedData.getNumber(),
+                pagedData.getSize(),
+                pagedData.getTotalPages(),
+                pagedData.getTotalElements(),
+                pagedData.getNumberOfElements(),
+                pagedData.isFirst(),
+                pagedData.isLast(),
+                pagedData.hasNext(),
+                pagedData.hasPrevious()
+        );
     }
 
     @Override

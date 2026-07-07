@@ -1,23 +1,28 @@
-package com.ecommerce.order_service.service;
+package com.centegy.ecommerce.order_service.service;
 
 
 import com.centegy.ecommerce_shared.dto.ApiResponse;
-import com.ecommerce.order_service.client.InventoryClient;
-import com.ecommerce.order_service.dto.external.ProductResponseDto;
-import com.ecommerce.order_service.dto.request.OrderRequestDto;
-import com.ecommerce.order_service.dto.response.OrderResponseDto;
-import com.ecommerce.order_service.mapper.OrderMapper;
-import com.ecommerce.order_service.model.Order;
-import com.ecommerce.order_service.model.OrderItems;
-import com.ecommerce.order_service.repository.OrderRepository;
+import com.centegy.ecommerce_shared.dto.PageResponse;
+import com.centegy.ecommerce.order_service.client.InventoryClient;
+import com.centegy.ecommerce.order_service.dto.external.ProductResponseDto;
+import com.centegy.ecommerce.order_service.dto.request.OrderRequestDto;
+import com.centegy.ecommerce.order_service.dto.response.OrderResponseDto;
+import com.centegy.ecommerce.order_service.mapper.OrderMapper;
+import com.centegy.ecommerce.order_service.model.Order;
+import com.centegy.ecommerce.order_service.model.OrderItems;
+import com.centegy.ecommerce.order_service.repository.OrderRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional
@@ -38,8 +43,29 @@ public class OrderServiceImpl implements OrderService{
     }
 
     @Override
-    public List<OrderResponseDto> getAllOrders() {
-        return orderRepository.findAll().stream().map(orderMapper::mapToOrderResponseDto).collect(java.util.stream.Collectors.toList());
+    public PageResponse<OrderResponseDto> getAllOrders(int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Order> pagedData = orderRepository.findAll(pageable);
+
+        List<OrderResponseDto> content = pagedData.getContent().stream()
+                .map(orderMapper::mapToOrderResponseDto)
+                .collect(Collectors.toList());
+
+        return new PageResponse<>(
+                content,
+                pagedData.getNumber(),
+                pagedData.getSize(),
+                pagedData.getTotalPages(),
+                pagedData.getTotalElements(),
+                pagedData.getNumberOfElements(),
+                pagedData.isFirst(),
+                pagedData.isLast(),
+                pagedData.hasNext(),
+                pagedData.hasPrevious()
+        );
+
     }
 
     @Override
@@ -64,13 +90,8 @@ public class OrderServiceImpl implements OrderService{
 
             InventoryRequestPayload inventoryRequestPayload = new InventoryRequestPayload(item.getQuantity(), item.getProductId());
 
-            try {
-                inventoryClient.deductStock(inventoryRequestPayload);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException(e.getMessage());
-            }
+            inventoryClient.deductStock(inventoryRequestPayload);
+
 
             item.setPrice(product.getPrice());
         }

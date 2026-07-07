@@ -3,6 +3,7 @@ package com.centegy.ecommerce.inventory_service.service;
 import com.centegy.ecommerce.inventory_service.dto.request.InventoryRequestDto;
 import com.centegy.ecommerce.inventory_service.dto.response.InventoryResponseDto;
 import com.centegy.ecommerce.inventory_service.model.Inventory;
+import com.centegy.ecommerce_shared.dto.PageResponse;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ public interface InventoryService {
 
     InventoryResponseDto findInventoryById(Long inventoryId);
 
-    List<InventoryResponseDto> findAllInventory();
+    PageResponse<InventoryResponseDto> findAllInventory(int page, int size);
 
     InventoryResponseDto addStock(InventoryRequestDto inventoryRequestDto);
     InventoryResponseDto deductStock(InventoryRequestDto inventoryRequestDto);

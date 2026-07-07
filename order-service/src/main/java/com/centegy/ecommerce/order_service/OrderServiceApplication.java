@@ -1,10 +1,10 @@
-package com.ecommerce.order_service;
+package com.centegy.ecommerce.order_service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.centegy.ecommerce.order_service", "com.centegy.ecommerce_shared"})
 @EnableJpaAuditing
 public class OrderServiceApplication {
 

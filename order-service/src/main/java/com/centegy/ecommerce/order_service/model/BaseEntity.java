@@ -1,4 +1,4 @@
-package com.ecommerce.order_service.model;
+package com.centegy.ecommerce.order_service.model;
 
 
 import jakarta.persistence.*;

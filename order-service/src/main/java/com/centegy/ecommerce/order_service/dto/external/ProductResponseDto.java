@@ -1,6 +1,5 @@
-package com.ecommerce.order_service.model;
+package com.centegy.ecommerce.order_service.dto.external;
 
-import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,15 +7,13 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 
-@Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderItems extends BaseEntity{
+public class ProductResponseDto {
 
-    private Long productId;
+    private Long id;
     private BigDecimal price;
-    private int quantity;
 
 }

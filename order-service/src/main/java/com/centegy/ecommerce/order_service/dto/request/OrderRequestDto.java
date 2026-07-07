@@ -1,6 +1,8 @@
-package com.ecommerce.order_service.dto.request;
+package com.centegy.ecommerce.order_service.dto.request;
 
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +16,8 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderRequestDto {
 
-
+    @NotEmpty(message = "Order must contain at least one item")
+    @Valid          //this checks the rules inside OrderItemsRequestDto
     private List<OrderItemsRequestDto> orderItems;
 
 }

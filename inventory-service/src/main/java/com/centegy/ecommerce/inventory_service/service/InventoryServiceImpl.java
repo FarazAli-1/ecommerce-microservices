@@ -7,12 +7,13 @@ import com.centegy.ecommerce.inventory_service.dto.response.InventoryResponseDto
 import com.centegy.ecommerce.inventory_service.mapper.InventoryMapper;
 import com.centegy.ecommerce.inventory_service.model.Inventory;
 import com.centegy.ecommerce.inventory_service.repository.InventoryRepository;
+import com.centegy.ecommerce_shared.dto.PageResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-
 
 @RequiredArgsConstructor
 @Transactional
@@ -31,12 +32,8 @@ public class InventoryServiceImpl implements  InventoryService {
          throw new RuntimeException("Inventory for product with id " + inventoryRequestDto.getProductId() + " already exists");
      }
 
-     try {
-         productClient.verifyProduct(inventoryRequestDto.getProductId());
-     } catch (Exception e) {
-         e.printStackTrace();
-         throw new RuntimeException(e.getMessage());
-     }
+     productClient.verifyProduct(inventoryRequestDto.getProductId());
+
 
      Inventory inventory = inventoryMapper.mapToInventory(inventoryRequestDto);
 
@@ -77,8 +74,25 @@ public class InventoryServiceImpl implements  InventoryService {
     }
 
     @Override
-    public List<InventoryResponseDto> findAllInventory() {
-        return inventoryRepository.findAll().stream().map(inventoryMapper :: mapToInventoryResponseDto).collect(java.util.stream.Collectors.toList());
+    public PageResponse<InventoryResponseDto> findAllInventory(int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<InventoryResponseDto> pagedData = inventoryRepository.findAllInventory(pageable);
+
+        return new PageResponse<>(
+                pagedData.getContent(),
+                pagedData.getNumber(),
+                pagedData.getSize(),
+                pagedData.getTotalPages(),
+                pagedData.getTotalElements(),
+                pagedData.getNumberOfElements(),
+                pagedData.isFirst(),
+                pagedData.isLast(),
+                pagedData.hasNext(),
+                pagedData.hasPrevious()
+        );
+
     }
 
     @Override
@@ -110,13 +124,7 @@ public class InventoryServiceImpl implements  InventoryService {
 
         inventory.setStockQuantity(newStockQuantity);
 
-
-        try {
-            return inventoryMapper.mapToInventoryResponseDto(inventoryRepository.save(inventory));
-        } catch (org.springframework.orm.ObjectOptimisticLockingFailureException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Sorry, someone else just purchased this item.");
-        }
+        return inventoryMapper.mapToInventoryResponseDto(inventoryRepository.save(inventory));
 
     }
 

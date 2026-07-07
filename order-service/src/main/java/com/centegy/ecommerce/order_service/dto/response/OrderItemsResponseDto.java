@@ -1,4 +1,4 @@
-package com.ecommerce.order_service.dto.response;
+package com.centegy.ecommerce.order_service.dto.response;
 
 import lombok.*;
 

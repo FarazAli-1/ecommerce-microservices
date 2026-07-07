@@ -6,17 +6,22 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class PageResponse <T> {
+@NoArgsConstructor
+public class PageResponse<T> {
 
-    private java.util.List<T> content;
-    private int totalPages;
-    private int pageSize;
+    private List<T> content;
     private int page;
-    private java.lang.Long totalElements;
+    private int pageSize;
+    private int totalPages;
+    private long totalElements;
+    private int numberOfElements;
+    private boolean first;
     private boolean last;
-
+    private boolean hasNext;
+    private boolean hasPrevious;
 }
